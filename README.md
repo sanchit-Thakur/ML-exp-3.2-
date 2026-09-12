@@ -1,65 +1,38 @@
-Markdown# Machine Learning Lab: Continuous Data Preprocessing
+# Continuous Data Preprocessing Pipeline
 
-A structured demonstration of foundational data preprocessing techniques applied to continuous variables from a `.csv` dataset.
+A complete overview of the foundational machine learning steps required to clean, evaluate, and prepare continuous `.csv` datasets for modeling.
 
 ---
 
-## 📌 Workflow Overview
+## 📌 Pipeline Architecture
 
-Raw CSV Dataset│▼[1. Library Import]  ──> pandas, numpy, matplotlib, seaborn, scikit-learn│▼[2. Data Ingestion]  ──> df.read_csv() & inspect structure│▼[3. Missing Values]  ──> df.isnull().sum() ──> Imputation / Drop│▼[4. Outlier Analysis] ─> IQR / Z-Score detection ──> Visual inspection (Boxplot)│▼[5. Train/Test Split]─> train_test_split(test_size=0.2) ──> 80% Train | 20% Test
----
+```mermaid
+flowchart TD
+    A([📁 Raw Continuous CSV Dataset]) --> B[📦 1. Import Essential Libraries]
+    B --> C[📥 2. Ingest Dataset & Separate Features / Target]
+    C --> D{❓ 3. Check Missing Data}
+    D -- Missing Values Found --> E[🛠️ Imputation / Removal Strategy]
+    D -- Clean --> F[📊 4. Detect Outliers via IQR & Boxplots]
+    E --> F
+    F --> G[✂️ 5. Outlier Filtering / Trimming]
+    G --> H[⚖️ 6. Split into Training & Testing Sets]
+    H --> I([🚀 Ready for Model Training])
 
-## 🛠️ Step-by-Step Implementation
+    classDef stage fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#fff;
+    classDef step fill:#0f172a,stroke:#64748b,stroke-width:1px,color:#e2e8f0;
+    class A,I stage;
+    class B,C,D,E,F,G,H step;
 
-### 1. Getting the Dataset
-Place your continuous target/feature data in the project root directory as a CSV file (e.g., `dataset.csv`).
 
-├── dataset.csv├── preprocessing.py└── README.md
----
-
-### 2. Importing Libraries
-
-```python
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.model_selection import train_test_split
-from sklearn.impute import SimpleImputer
-3. Importing the DatasetLoad the CSV file into a pandas DataFrame and separate features ($X$) and target ($y$):Python# Load dataset
-df = pd.read_csv('dataset.csv')
-
-# Display basic structure
-print(df.head())
-print(df.info())
-
-# Separate independent and dependent features
-X = df.iloc[:, :-1]
-y = df.iloc[:, -1]
-4. Handling Missing DataContinuous features require statistical imputation (mean/median) or record pruning:Python# Check total missing values per continuous column
-print("Missing values count:")
-print(df.isnull().sum())
-
-# Strategy: Impute missing numerical values using the mean
-imputer = SimpleImputer(missing_values=np.nan, strategy='mean')
-X = imputer.fit_transform(X)
-5. Outlier Detection & TreatmentIdentify extreme values in continuous features using the Interquartile Range (IQR) method:$$\text{IQR} = Q_3 - Q_1$$$$\text{Lower Bound} = Q_1 - 1.5 \times \text{IQR}, \quad \text{Upper Bound} = Q_3 + 1.5 \times \text{IQR}$$Python# Visualizing outliers via Boxplot
-plt.figure(figsize=(8, 4))
-sns.boxplot(data=df.select_dtypes(include=[np.number]))
-plt.title("Outlier Distribution in Continuous Features")
-plt.show()
-
-# IQR Capping / Trimming
-Q1 = df.quantile(0.25)
-Q3 = df.quantile(0.75)
-IQR = Q3 - Q1
-
-# Filter outliers
-df_cleaned = df[~((df < (Q1 - 1.5 * IQR)) | (df > (Q3 + 1.5 * IQR))).any(axis=1)]
-6. Splitting into Training and Test SetsPartition continuous features to prevent data leakage prior to model training:PythonX_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.20, random_state=42
-)
-
-print(f"Training set: {X_train.shape[0]} samples")
-print(f"Testing set:  {X_test.shape[0]} samples")
-📊 Summary of Pipeline StagesStepTechnique / FunctionGoalIngestionpd.read_csv()Load tabular continuous records into memoryMissing DataSimpleImputer(strategy='mean')Prevent NaN errors without shrinking dataset sizeOutlier DetectionBoxplot / IQR BoundsPrevent extreme values from skewing continuous regression slopesDataset Splittingtrain_test_split(test_size=0.2)
+🧭 Step-by-Step Overview[1. Dataset Acquisition] ───► Place 'dataset.csv' with numeric features in root
+         │
+[2. Environment Setup]   ───► Load pandas, numpy, scikit-learn, and seaborn
+         │
+[3. Data Ingestion]      ───► Parse rows/columns; map X (predictors) & y (target)
+         │
+[4. Missing Data Scan]   ───► Count NaNs (df.isnull()) ──► Apply mean/median impute
+         │
+[5. Outlier Detection]   ───► Compute IQR (Q3 - Q1)    ──► Flag values beyond ±1.5×IQR
+         │
+[6. Data Partitioning]   ───► Split into 80% Train and 20% Test sets
+📊 Summary of Stages & ObjectivesStepStageCore TechniqueObjective01Dataset GatheringLocal File StorageEnsure tabular numeric continuous data is accessible.02Library Setuppandas, numpy, sklearnLoad foundational numerical and modeling toolkits.03Data Loadingpd.read_csv()Load tabular records into memory and separate $X$ and $y$.04Missing ValuesSimpleImputer(strategy='mean')Prevent NaN errors without reducing sample size.05Outlier HandlingBoxplots / IQR ThresholdingRemove or cap extreme values distorting data variance.06Train/Test Split
