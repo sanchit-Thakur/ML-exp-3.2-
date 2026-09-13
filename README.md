@@ -1,12 +1,6 @@
 # Continuous Data Preprocessing Pipeline
 
-A complete overview of the foundational machine learning steps required to clean, evaluate, and prepare continuous `.csv` datasets for modeling.
 
----
-
-## 📌 Pipeline Architecture
-
-```mermaid
 flowchart TD
     A([📁 Raw Continuous CSV Dataset]) --> B[📦 1. Import Essential Libraries]
     B --> C[📥 2. Ingest Dataset & Separate Features / Target]
